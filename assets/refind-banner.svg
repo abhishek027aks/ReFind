@@ -1,0 +1,69 @@
+﻿<svg width="1600" height="520" viewBox="0 0 1600 520" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07111F"/>
+      <stop offset="55%" stop-color="#0B1F38"/>
+      <stop offset="100%" stop-color="#102F52"/>
+    </linearGradient>
+
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="20" flood-opacity=".35"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="520" rx="34" fill="url(#bg)"/>
+
+  <circle cx="1350" cy="80" r="230" fill="#2563EB" opacity=".08"/>
+  <circle cx="1450" cy="430" r="300" fill="#38BDF8" opacity=".05"/>
+
+  <g transform="translate(145 105)" filter="url(#shadow)">
+    <rect width="310" height="310" rx="70" fill="#07111F" stroke="#1E4D7A" stroke-width="5"/>
+    <circle cx="155" cy="155" r="103" fill="none" stroke="url(#accent)" stroke-width="25"/>
+    <path d="M105 225V85h72c50 0 75 24 75 63 0 29-15 49-40 59l48 48h-53l-39-41h-17v41h-46zm46-80h23c20 0 31-9 31-25s-11-25-31-25h-23v50z" fill="white"/>
+  </g>
+
+  <text x="520" y="185"
+        fill="white"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="82"
+        font-weight="700">
+    ReFind
+  </text>
+
+  <text x="525" y="250"
+        fill="#7DD3FC"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="34"
+        font-weight="600">
+    Lost Today. Found Tomorrow.
+  </text>
+
+  <text x="525" y="310"
+        fill="#CBD5E1"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="24">
+    Smart Lost &amp; Found Management System
+  </text>
+
+  <text x="525" y="350"
+        fill="#94A3B8"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="20">
+    Report • Discover • Match • Claim • Recover
+  </text>
+
+  <rect x="525" y="390" width="250" height="52" rx="26" fill="url(#accent)"/>
+  <text x="650" y="424"
+        text-anchor="middle"
+        fill="white"
+        font-family="Segoe UI, Arial, sans-serif"
+        font-size="18"
+        font-weight="700">
+    SMART CAMPUS SOLUTION
+  </text>
+</svg>
