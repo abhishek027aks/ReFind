@@ -7,7 +7,7 @@
 - Lost and found item reports with search and category filtering.
 - Automatic, explainable text-based matching between opposite report types.
 - Private ownership claims, return-point selection, and report-state tracking.
-- Persistent SQLite tables for users, reports, claims, matches, and notifications.
+- Persistent SQLite or PostgreSQL tables for users, reports, claims, matches, and notifications.
 - Configurable upload and database paths through environment variables.
 - Image content-signature validation for JPG, PNG, and WebP uploads.
 - Ownership checks prevent users from claiming their own report or duplicating an active claim.
@@ -34,7 +34,7 @@ An administrator can also flag a suspicious report. Public report views never ex
 1. Set a unique `REFIND_TOKEN_SECRET` before deployment.
 2. Set `REFIND_CORS_ORIGINS` to the exact HTTPS frontend origins.
 3. Replace the seeded demo admin password and use HTTPS-only cookies or a secure token store.
-4. Move SQLite to PostgreSQL through a reviewed migration and place uploaded images in object storage.
+4. Set `REFIND_DATABASE_URL` to the Supabase Session Pooler URL and run `alembic upgrade head`; the API selects the PostgreSQL SQLAlchemy adapter automatically.
 5. Add email/college-SIS verification and rate limiting at the reverse proxy or API gateway.
 6. Replace simple token-overlap matching with reviewed embedding/image signals; never treat a match score as proof of ownership.
 
@@ -58,6 +58,7 @@ python -m pytest -q test_api.py
 `Dockerfile` runs the API with a persistent data directory and
 `docker-compose.yml` starts the API and Vite frontend together. The compose
 volume contains the local SQLite database and uploaded images; back it up before
-recreating the volume. A managed PostgreSQL/object-storage migration is required
-for high-volume production because this repository deliberately keeps SQLite as
-the zero-setup local adapter.
+recreating the volume. For PostgreSQL deployment, run migrations against the
+Supabase database first and supply the URL only through the environment. The
+explicit `backend/import_sqlite_to_postgres.py` script performs additive,
+conflict-safe import if existing local data must be transferred.

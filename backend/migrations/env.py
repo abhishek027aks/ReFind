@@ -7,6 +7,10 @@ config = context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
 configured_url = os.environ.get("REFIND_DATABASE_URL") or config.get_main_option("sqlalchemy.url")
+if configured_url.startswith("postgresql://"):
+    configured_url = configured_url.replace("postgresql://", "postgresql+psycopg://", 1)
+elif configured_url.startswith("postgres://"):
+    configured_url = configured_url.replace("postgres://", "postgresql+psycopg://", 1)
 config.set_main_option("sqlalchemy.url", configured_url.replace("%", "%%"))
 
 def run_migrations_offline():

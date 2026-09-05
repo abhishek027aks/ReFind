@@ -63,7 +63,7 @@ def upgrade():
         sa.Column("kind", sa.String(30), nullable=False),
         sa.Column("message", sa.String(1000), nullable=False),
         sa.Column("report_id", sa.Integer, sa.ForeignKey("reports.id")),
-        sa.Column("read", sa.Boolean, nullable=False, server_default=sa.false()),
+        sa.Column("read", sa.Integer, nullable=False, server_default="0"),
         sa.Column("created_at", sa.String(64), nullable=False),
     )
     op.create_index("idx_reports_kind_status_created", "reports", ["kind", "status", "created_at"])

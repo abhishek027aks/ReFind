@@ -402,7 +402,7 @@ def my_reports(authorization: str | None = Header(None)):
     user = user_from_header(authorization)
     with closing(connection()) as db:
         sql = "SELECT id,kind,name,category,location,description,photo_url,status,created_at FROM reports WHERE user_id=? ORDER BY id DESC"
-        return [row(item) for item in db.execute(sql, [user["id"]]).fetchall()]
+        return [row(item) for item in db.execute(sql, [user["id"]])]
 
 @app.get("/claims/my")
 def my_claims(authorization: str | None = Header(None)):

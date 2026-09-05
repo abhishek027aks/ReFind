@@ -175,6 +175,34 @@ Follow the setup instructions inside the project-specific `frontend` and `backen
 
 Start the backend and frontend according to the project's current development configuration.
 
+### ReFind runtime commands
+
+```powershell
+npm install
+npm run build
+cd backend
+python -m pip install -r requirements.txt
+python -m pytest -q
+uvicorn main:app --reload --port 8001
+```
+
+SQLite remains the default local database. For Supabase Session Pooler
+deployment, provide `REFIND_DATABASE_URL` through the hosting environment and
+run `alembic upgrade head` before starting the API. The runtime selects
+PostgreSQL automatically for `postgresql://`, `postgresql+psycopg://`, or
+`postgres://` URLs; credentials are never stored in this repository.
+
+For an explicit additive data import from the existing SQLite database:
+
+```powershell
+$env:REFIND_IMPORT_SQLITE_PATH = 'backend/refind.db'
+$env:REFIND_DATABASE_URL = 'postgresql+psycopg://...'
+python backend/import_sqlite_to_postgres.py
+```
+
+The import requires a real PostgreSQL URL, applies migrations, preserves IDs,
+uses conflict-safe inserts, and never truncates or deletes destination data.
+
 ---
 
 ## 🔐 Security

@@ -370,7 +370,7 @@ def create_report(payload: ReportInput, authorization: str | None = Header(None)
         raise HTTPException(422, "Report fields must contain meaningful text")
     with closing(connection()) as db:
         cursor = db.execute("INSERT INTO reports(user_id,kind,name,category,location,description,photo_url,status,created_at) VALUES (?,?,?,?,?,?,?,?,?)", (user["id"],payload.kind,name,category,location,description,payload.photo_url,"open",now())); report_id=cursor.lastrowid
-        report = row(db.execute("SELECT * FROM reports WHERE id=?",[report_id]).fetchone()); opposite = [row(item) for item in db.execute("SELECT * FROM reports WHERE kind != ?",[payload.kind]).fetchall()]; matches=[]
+        report = row(db.execute("SELECT * FROM reports WHERE id=?",[report_id]).fetchone()); opposite = db.execute("SELECT * FROM reports WHERE kind != ?",[payload.kind]).fetchall(); matches=[]
         for other in opposite:
             score = match_score(f"{report['name']} {report['category']} {report['location']} {report['description']}",f"{other['name']} {other['category']} {other['location']} {other['description']}")
             if score >= 20:
@@ -402,7 +402,7 @@ def my_reports(authorization: str | None = Header(None)):
     user = user_from_header(authorization)
     with closing(connection()) as db:
         sql = "SELECT id,kind,name,category,location,description,photo_url,status,created_at FROM reports WHERE user_id=? ORDER BY id DESC"
-        return [row(item) for item in db.execute(sql, [user["id"]]).fetchall()]
+        return [row(item) for item in db.execute(sql, [user["id"]])]
 
 @app.get("/claims/my")
 def my_claims(authorization: str | None = Header(None)):
