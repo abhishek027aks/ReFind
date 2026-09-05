@@ -5,6 +5,7 @@ WORKDIR /app
 COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir -r /app/backend/requirements.txt
 
+COPY alembic.ini /app/alembic.ini
 COPY backend /app/backend
 
 ENV REFIND_DATABASE_PATH=/data/refind.db
