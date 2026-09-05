@@ -346,7 +346,7 @@ def register(payload: RegisterInput):
     return {"user":user,"token":token_for(user)}
 @app.post("/auth/login")
 def login(payload: LoginInput):
-    with closing(connection()) as db: account = db.execute("SELECT * FROM users WHERE email=?",[payload.email.lower().strip()]).fetchone()
+    with closing(connection()) as db: account = row(db.execute("SELECT * FROM users WHERE email=?",[payload.email.lower().strip()]).fetchone())
     if not account or not verify_password(payload.password, account["password_hash"]): raise HTTPException(401,"Incorrect email or password")
     user = {key:account[key] for key in ("id","name","email","role","created_at")}; return {"user":user,"token":token_for(user)}
 @app.get("/auth/me")
@@ -358,7 +358,7 @@ def list_reports(kind: Literal["lost","found"] | None=None, query: str=""):
     if kind: sql += " AND kind=?"; args.append(kind)
     search = clean_text(query)[:100]
     if search: sql += " AND (name LIKE ? OR category LIKE ? OR location LIKE ? OR description LIKE ?)"; args.extend([f"%{search}%"] * 4)
-    with closing(connection()) as db: return [row(item) for item in db.execute(sql+" ORDER BY id DESC",args)]
+    with closing(connection()) as db: return [row(item) for item in db.execute(sql+" ORDER BY id DESC",args).fetchall()]
 @app.post("/reports",status_code=201)
 def create_report(payload: ReportInput, authorization: str | None = Header(None)):
     user = user_from_header(authorization)
@@ -416,13 +416,13 @@ def my_claims(authorization: str | None = Header(None)):
             WHERE c.user_id = ?
             ORDER BY c.id DESC
         """
-        return [row(item) for item in db.execute(sql, [user["id"]])]
+        return [row(item) for item in db.execute(sql, [user["id"]]).fetchall()]
 
 @app.post("/claims",status_code=201)
 def create_claim(payload: ClaimInput, authorization: str | None = Header(None)):
     user=user_from_header(authorization)
     with closing(connection()) as db:
-        report=db.execute("SELECT * FROM reports WHERE id=?",[payload.report_id]).fetchone()
+        report=row(db.execute("SELECT * FROM reports WHERE id=?",[payload.report_id]).fetchone())
         if not report: raise HTTPException(404,"Report not found")
         if report["user_id"] == user["id"]:
             raise HTTPException(400, "You cannot claim your own report")
@@ -437,7 +437,7 @@ def create_claim(payload: ClaimInput, authorization: str | None = Header(None)):
 def list_matches(authorization: str | None = Header(None)):
     user=user_from_header(authorization)
     sql="SELECT m.*,l.name AS lost_name,f.name AS found_name FROM matches m JOIN reports l ON l.id=m.lost_report_id JOIN reports f ON f.id=m.found_report_id WHERE l.user_id=? OR f.user_id=? ORDER BY m.score DESC"
-    with closing(connection()) as db: return [row(item) for item in db.execute(sql,[user["id"],user["id"]])]
+    with closing(connection()) as db: return [row(item) for item in db.execute(sql,[user["id"],user["id"]]).fetchall()]
 @app.patch("/matches/{match_id}")
 def update_match(match_id:int,payload:MatchInput,authorization: str | None=Header(None)):
     require_admin(authorization)
@@ -448,7 +448,7 @@ def update_match(match_id:int,payload:MatchInput,authorization: str | None=Heade
 @app.get("/notifications")
 def list_notifications(authorization: str | None=Header(None)):
     user=user_from_header(authorization)
-    with closing(connection()) as db: return [row(item) for item in db.execute("SELECT * FROM notifications WHERE user_id=? ORDER BY id DESC",[user["id"]])]
+    with closing(connection()) as db: return [row(item) for item in db.execute("SELECT * FROM notifications WHERE user_id=? ORDER BY id DESC",[user["id"]]).fetchall()]
 @app.post("/notifications/{notification_id}/read")
 def read_notification(notification_id:int,authorization: str | None=Header(None)):
     user=user_from_header(authorization)
@@ -466,7 +466,7 @@ def admin_claims(authorization: str | None=Header(None)):
 def update_claim_status(claim_id:int,payload:ClaimUpdateInput,authorization: str | None=Header(None)):
     require_admin(authorization)
     with closing(connection()) as db:
-        claim=db.execute("SELECT c.*,r.name AS report_name,r.user_id AS owner_id FROM claims c JOIN reports r ON r.id=c.report_id WHERE c.id=?",[claim_id]).fetchone()
+        claim=row(db.execute("SELECT c.*,r.name AS report_name,r.user_id AS owner_id FROM claims c JOIN reports r ON r.id=c.report_id WHERE c.id=?",[claim_id]).fetchone())
         if not claim: raise HTTPException(404,"Claim not found")
         db.execute("UPDATE claims SET status=? WHERE id=?",[payload.status,claim_id])
         if payload.status == "verified":
@@ -483,7 +483,7 @@ def update_claim_status(claim_id:int,payload:ClaimUpdateInput,authorization: str
 def set_report_status(report_id:int,payload:StatusInput,authorization: str | None=Header(None)):
     require_admin(authorization)
     with closing(connection()) as db:
-        report=db.execute("SELECT * FROM reports WHERE id=?",[report_id]).fetchone()
+        report=row(db.execute("SELECT * FROM reports WHERE id=?",[report_id]).fetchone())
         if not report: raise HTTPException(404,"Report not found")
         db.execute("UPDATE reports SET status=? WHERE id=?",[payload.status,report_id]); notify(db,report["user_id"],"status",f"Your {report['name']} report is now {payload.status.replace('_',' ')}",report_id); db.commit()
     return {"id":report_id,"status":payload.status}

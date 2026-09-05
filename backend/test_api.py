@@ -9,9 +9,15 @@ def client(monkeypatch, tmp_path):
     database = tmp_path / "test.db"
     uploads = tmp_path / "uploads"
     uploads.mkdir()
+
     monkeypatch.setattr(main, "DATABASE", database)
     monkeypatch.setattr(main, "UPLOAD_DIR", uploads)
+    monkeypatch.setattr(main, "DATABASE_URL", f"sqlite:///{database.as_posix()}")
+    monkeypatch.setattr(main, "IS_POSTGRES", False)
+    monkeypatch.setattr(main, "sqlalchemy_engine", None)
+
     main.initialise_database()
+
     with TestClient(main.app) as test_client:
         yield test_client
 
